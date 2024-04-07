@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  otter:
+    image: otter:4.2.18
+    container_name: otter
+    volumes:
+     - ./mysql_data:/var/lib/mysql
+     - ./zkData:/home/admin/zkData  
+     - otter:/home/admin/manager/logs
+    ports:
+      - 9191:9191
+    environment:
+      # 宿主机ip
+      - HOST=192.168.1.1
+      # docker映射到宿主机的端口
+      - MANAGER_PORT=9191 
+      # 邮箱地址
+      - MAIL_HOST=2.2.2.2 
+      # 邮箱账号
+      - MAIL_USERNAME=123@123.com
+      # 邮箱密码
+      - MAIL_PASSWORD=123
+    restart: unless-stopped
+volumes:
+  otter:

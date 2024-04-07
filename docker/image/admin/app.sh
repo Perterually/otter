@@ -9,8 +9,11 @@ chown admin: /tmp/start.log
 chown admin: /home/admin/manager
 chown admin: /home/admin/node
 chown admin: /home/admin/zkData
-host=`hostname -i`
-
+host=$HOST
+MANAGER_PORT=$MANAGER_PORT
+MAIL_HOST=$MAIL_HOST
+MAIL_USERNAME=$MAIL_USERNAME
+MAIL_PASSWORD=$MAIL_PASSWORD
 # default config
 if [ -z "${RUN_MODE}" ]; then
     RUN_MODE="ALL"
@@ -118,11 +121,19 @@ function start_manager() {
         eval $cmd
         cmd="sed -i -e 's/^otter.domainName.*$/otter.domainName = ${host}/' /home/admin/manager/conf/otter.properties"
         eval $cmd
+        cmd="sed -i -e 's/^otter.port.*$/otter.port = ${MANAGER_PORT}/' /home/admin/manager/conf/otter.properties"
+        eval $cmd
+        cmd="sed -i -e 's/^otter.manager.monitor.email\.hos.*$/otter.manager.monitor.email.host = ${MAIL_HOST}/' /home/admin/manager/conf/otter.properties"
+        eval $cmd
+        cmd="sed -i -e 's/^otter.manager.monitor.email\.usernam.*$/otter.manager.monitor.email.username = ${MAIL_USERNAME}/' /home/admin/manager/conf/otter.properties"
+        eval $cmd
+        cmd="sed -i -e 's/^otter.manager.monitor.email\.passwor.*$/otter.manager.monitor.email.password = ${MAIL_PASSWORD}/' /home/admin/manager/conf/otter.properties"
+        eval $cmd
     fi
     su admin -c "cd /home/admin/manager/bin ; sh startup.sh 1>>/tmp/start.log 2>&1"
     #check start
     sleep 5
-    checkStart "manager" "nc 127.0.0.1 8080 -w 1 -z | wc -l" 60
+    checkStart "manager" "nc 127.0.0.1 ${MANAGER_PORT} -w 1 -z | wc -l" 60
 }
 
 function stop_manager() {
@@ -201,7 +212,7 @@ start_mysql
 start_zookeeper
 start_manager
 start_node
-echo "you can visit manager link : http://$host:8080/ , just have fun !"
+echo "you can visit manager link : http://$host:${MANAGER_PORT}/ , just have fun !"
 
 echo "==> START SUCCESSFUL ..."
 
